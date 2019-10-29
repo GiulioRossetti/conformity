@@ -1,0 +1,10 @@
+[run]
+omit =
+ setup.py
+ cdlib/algorithms/internal/*
+ cdlib/evaluation/internal/*
+
+[report]
+exclude_lines =
+    def main()
+    raise
