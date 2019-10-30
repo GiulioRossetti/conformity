@@ -58,7 +58,7 @@ setup(name='conformity',
           'Topic :: Software Development :: Build Tools',
 
           # Pick your license as you wish (should match "license" above)
-          'License :: OSI Approved :: BSD License',
+          'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
 
           "Operating System :: POSIX :: Other",
           "Operating System :: MacOS",
