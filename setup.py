@@ -39,7 +39,7 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
 
-setup(name='conformity',
+setup(name='node_conformity',
       version='0.0.1',
       license='BSD-Clause-2',
       description='Path-Aware local homophily score',

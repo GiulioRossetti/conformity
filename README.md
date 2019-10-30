@@ -21,7 +21,7 @@ pip install .
 
 Alternatively use pip:
 ```bash
-pip install conformity
+pip install node_conformity
 ```
 
 ## Usage
