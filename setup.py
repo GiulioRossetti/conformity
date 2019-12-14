@@ -39,7 +39,7 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
 
-setup(name='conformity',
+setup(name='node_conformity',
       version='0.0.1',
       license='BSD-Clause-2',
       description='Path-Aware local homophily score',
@@ -58,7 +58,7 @@ setup(name='conformity',
           'Topic :: Software Development :: Build Tools',
 
           # Pick your license as you wish (should match "license" above)
-          'License :: OSI Approved :: BSD License',
+          'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
 
           "Operating System :: POSIX :: Other",
           "Operating System :: MacOS",
