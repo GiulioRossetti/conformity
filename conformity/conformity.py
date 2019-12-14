@@ -6,31 +6,46 @@ from collections import defaultdict
 __all__ = ["attribute_conformity"]
 
 
-def __label_frequency(g: nx.Graph, u: object, nodes: list, labels: list) -> float:
+def __label_frequency(g: nx.Graph, u: object, nodes: list, labels: list, hierarchies: dict = None) -> float:
     """
     Compute the similarity of node profiles
 
     :param g: a networkx Graph object
     :param u: node id
-    :param v: node id
     :param labels: list of node categorical labels
+    :param hierarchies: dict of labels hierarchies
     :return: node profiles similarity score in [-1, 1]
     """
     s = 1
-    for l in labels:
-        a_u = g.node[u][l]
+    for label in labels:
+        a_u = g.node[u][label]
         # set of nodes at given distance
         sgn = {}
         for v in nodes:
-            sgn[v] = 1 if a_u == g.node[v][l] else -1
+            # indicator function that exploits label hierarchical structure
+            sgn[v] = 1 if a_u == g.node[v][label] else __distance(label, a_u, g.node[v][label], hierarchies)
             v_neigh = list(g.neighbors(v))
-            # compute the frquency for give node at distance n over neighbors label
-            f_label = (len([x for x in v_neigh if g.node[x][l] == g.node[v][l]]) / len(v_neigh))
+            # compute the frequency for the given node at distance n over neighbors label
+            f_label = (len([x for x in v_neigh if g.node[x][label] == g.node[v][label]]) / len(v_neigh))
             f_label = f_label if f_label > 0 else 1
             sgn[v] *= f_label
-        s *= sum(sgn.values())/len(nodes)
+        s *= sum(sgn.values()) / len(nodes)
 
     return s
+
+
+def __distance(label: str, v1: str, v2: str, hierarchies: dict = None) -> float:
+    """
+    Compute the distance of two labels in a plain hierarchy
+    :param label: label name
+    :param v1: first label value
+    :param v2: second label value
+    :param hierarchies: labels hierarchies
+    """
+    if hierarchies is None or label not in hierarchies:
+        return -1
+
+    return -abs(hierarchies[label][v1] - hierarchies[label][v2]) / (len(hierarchies[label]) - 1)
 
 
 def __normalize(u: object, scores: list, max_dist: int, alphas: list):
@@ -43,7 +58,7 @@ def __normalize(u: object, scores: list, max_dist: int, alphas: list):
     :return: scores updated
     """
     for alpha in alphas:
-        norm = sum([(d ** -alpha) for d in range(1, max_dist+1)])
+        norm = sum([(d ** -alpha) for d in range(1, max_dist + 1)])
 
         for profile in scores[str(alpha)]:
             scores[str(alpha)][profile][u] /= norm
@@ -51,14 +66,15 @@ def __normalize(u: object, scores: list, max_dist: int, alphas: list):
     return scores
 
 
-def attribute_conformity(g, alphas: list, labels: list, profile_size: int = 1) -> dict:
+def attribute_conformity(g, alphas: list, labels: list, profile_size: int = 1, hierarchies: dict = None) -> dict:
     """
     Compute the Attribute-Profile Conformity for the considered graph
     :param g: a networkx Graph object composed by a single component
     :param alphas: list of damping factors
     :param labels: list of node categorical labels
     :param profile_size:
-    :return: clumpiness value for each node in [-1, 1]
+    :param hierarchies: label hierarchies
+    :return: conformity value for each node in [-1, 1]
 
     -- Example --
     >> g = nx.karate_club_graph()
@@ -75,7 +91,7 @@ def attribute_conformity(g, alphas: list, labels: list, profile_size: int = 1) -
         raise ValueError("At list one value must be specified for both alphas and labels")
 
     profiles = []
-    for i in range(1, profile_size+1):
+    for i in range(1, profile_size + 1):
         profiles.extend(combinations(labels, i))
 
     # Attribute value frequency
@@ -92,7 +108,7 @@ def attribute_conformity(g, alphas: list, labels: list, profile_size: int = 1) -
             tot += c
 
         for p, c in v.items():
-            df[k][p] = c/tot
+            df[k][p] = c / tot
 
     res = {str(a): {"_".join(profile): {n: 0 for n in g.nodes()} for profile in profiles} for a in alphas}
 
@@ -107,10 +123,10 @@ def attribute_conformity(g, alphas: list, labels: list, profile_size: int = 1) -
         for dist, nodes in sp.items():
             if dist != 0:
                 for profile in profiles:
-                    sim = __label_frequency(g, u, nodes, list(profile))
+                    sim = __label_frequency(g, u, nodes, list(profile), hierarchies)
 
                     for alpha in alphas:
-                        partial = sim / (dist**alpha)
+                        partial = sim / (dist ** alpha)
                         p_name = "_".join(profile)
                         res[str(alpha)][p_name][u] += partial
 
