@@ -7,8 +7,6 @@
 > G. Rossetti, S. Citraro and L. Milli.
 >
 > **Conformity: a Path-Aware Homophily measure for Node-Attributed Networks**
->
-> Submitted to CompleNet 2020
 
 ## Installation
 
