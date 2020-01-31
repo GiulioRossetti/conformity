@@ -1,4 +1,6 @@
 # Conformity
+[![PyPI download month](https://img.shields.io/pypi/dm/node-conformity.svg?color=blue&style=plastic)](https://pypi.python.org/pypi/node-conformity/)
+
 ``Conformity`` implements the path-aware homophily measure as introduced in:
 
 
