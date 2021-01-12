@@ -7,7 +7,8 @@
 > G. Rossetti, S. Citraro and L. Milli.
 >
 > **Conformity: a Path-Aware Homophily measure for Node-Attributed Networks**
-> https://arxiv.org/abs/2012.05195
+> IEEE Intelligent Systems, (2021 to appear), doi:10.1109/MIS.2021.3051291
+> Pre-Print: https://arxiv.org/abs/2012.05195
 
 ## Installation
 
