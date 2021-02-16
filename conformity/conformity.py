@@ -18,15 +18,15 @@ def __label_frequency(g: nx.Graph, u: object, nodes: list, labels: list, hierarc
     """
     s = 1
     for label in labels:
-        a_u = g.node[u][label]
+        a_u = g.nodes[u][label]
         # set of nodes at given distance
         sgn = {}
         for v in nodes:
             # indicator function that exploits label hierarchical structure
-            sgn[v] = 1 if a_u == g.node[v][label] else __distance(label, a_u, g.node[v][label], hierarchies)
+            sgn[v] = 1 if a_u == g.nodes[v][label] else __distance(label, a_u, g.nodes[v][label], hierarchies)
             v_neigh = list(g.neighbors(v))
             # compute the frequency for the given node at distance n over neighbors label
-            f_label = (len([x for x in v_neigh if g.node[x][label] == g.node[v][label]]) / len(v_neigh))
+            f_label = (len([x for x in v_neigh if g.nodes[x][label] == g.nodes[v][label]]) / len(v_neigh))
             f_label = f_label if f_label > 0 else 1
             sgn[v] *= f_label
         s *= sum(sgn.values()) / len(nodes)

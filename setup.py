@@ -40,7 +40,7 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
 
 
 setup(name='node_conformity',
-      version='0.0.1',
+      version='0.0.2',
       license='BSD-Clause-2',
       description='Path-Aware local homophily score',
       url='https://github.com/GiulioRossetti/conformity',
