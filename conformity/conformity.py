@@ -6,7 +6,7 @@ from collections import defaultdict
 __all__ = ["attribute_conformity"]
 
 
-def __adjacency_freqs(g: nx.Graph, nodes: list, labels: list):
+def __adjacency_freqs(g: nx.Graph, nodes: list, labels: list) -> dict:
     """
     Compute the similarity of node profiles of adjacent nodes
 
