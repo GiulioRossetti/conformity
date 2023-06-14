@@ -6,7 +6,29 @@ from collections import defaultdict
 __all__ = ["attribute_conformity"]
 
 
-def __label_frequency(g: nx.Graph, u: object, nodes: list, labels: list, hierarchies: dict = None) -> float:
+def __adjacency_freqs(g: nx.Graph, nodes: list, labels: list):
+    """
+    Compute the similarity of node profiles of adjacent nodes
+
+    :param g: a networkx Graph object
+    :param nodes: list of nodes
+    :param labels: list of node categorical labels
+    :return: dictionary where keys are nodes and values the frequency of adjacent neighbors sharing similar labels
+    """
+
+    sgn_adj = {}
+    for label in labels:
+        for v in nodes:
+            v_neigh = list(g.neighbors(v))
+            # compute the frequency for the given node at distance 1 over neighbors label
+            f_label = (len([x for x in v_neigh if g.nodes[x][label] == g.nodes[v][label]]) / len(v_neigh))
+            f_label = f_label if f_label > 0 else 1
+            sgn_adj[v] = f_label
+
+    return sgn_adj
+
+
+def __label_frequency(g: nx.Graph, u: object, nodes: list, labels: list, sgn_adj: dict, hierarchies: dict = None) -> float:
     """
     Compute the similarity of node profiles
 
@@ -24,11 +46,7 @@ def __label_frequency(g: nx.Graph, u: object, nodes: list, labels: list, hierarc
         for v in nodes:
             # indicator function that exploits label hierarchical structure
             sgn[v] = 1 if a_u == g.nodes[v][label] else __distance(label, a_u, g.nodes[v][label], hierarchies)
-            v_neigh = list(g.neighbors(v))
-            # compute the frequency for the given node at distance n over neighbors label
-            f_label = (len([x for x in v_neigh if g.nodes[x][label] == g.nodes[v][label]]) / len(v_neigh))
-            f_label = f_label if f_label > 0 else 1
-            sgn[v] *= f_label
+            sgn[v] *= sgn_adj[v]
         s *= sum(sgn.values()) / len(nodes)
 
     return s
@@ -112,6 +130,9 @@ def attribute_conformity(g, alphas: list, labels: list, profile_size: int = 1, h
 
     res = {str(a): {"_".join(profile): {n: 0 for n in g.nodes()} for profile in profiles} for a in alphas}
 
+    # Freq of nodes sharing similar values at distance 1
+    sgn_adj = __adjacency_freqs(g, g.nodes(), labels)
+
     for u in tqdm(g.nodes()):
         sp = dict(nx.shortest_path_length(g, u))
 
@@ -123,7 +144,7 @@ def attribute_conformity(g, alphas: list, labels: list, profile_size: int = 1, h
         for dist, nodes in sp.items():
             if dist != 0:
                 for profile in profiles:
-                    sim = __label_frequency(g, u, nodes, list(profile), hierarchies)
+                    sim = __label_frequency(g, u, nodes, list(profile), sgn_adj, hierarchies)
 
                     for alpha in alphas:
                         partial = sim / (dist ** alpha)
